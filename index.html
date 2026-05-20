@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Eyob Tsegaye | Full-Stack Developer & Database Administrator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -35,7 +36,6 @@
 </header>
 
 <main class="container">
-  <!-- Hero / About Section -->
   <section id="about" class="hero fade-up">
     <div class="profile-card">
       <div class="profile-photo">
@@ -62,7 +62,6 @@
     </div>
   </section>
 
-  <!-- Toolkit -->
   <section id="toolkit" class="section fade-up">
     <h2 class="section-title"><i class="fas fa-cogs"></i> Technical Arsenal</h2>
     <div class="toolkit-grid">
@@ -87,7 +86,6 @@
     </div>
   </section>
 
-  <!-- Signature Work -->
   <section id="projects" class="section fade-up">
     <h2 class="section-title"><i class="fas fa-code-branch"></i> Signature Work</h2>
     <div class="featured">
@@ -101,16 +99,15 @@
         <a href="http://localhost/Gojo/" class="btn btn-secondary" style="margin-top: 12px;"><i class="fas fa-external-link-alt"></i> Live Preview</a>
       </div>
       <div>
-<img class="project-img" src="Images/GojoHouse.png" alt="Gojo Housing">
-
-    </div>
+        <img class="project-img" src="Images/GojoHouse.png" alt="Gojo Housing">
+      </div>
     </div>
 
     <h3 style="margin: 40px 0 20px;">More Projects</h3>
     <div class="mini-projects">
       <a href="http://localhost/EV%20CARS/" class="mini-card">
-      <img src="Images/Evcars.png" alt="EV Cars">
-      <div class="caption"><i class="fas fa-car"></i> EV Stations & Technician Management</div>
+        <img src="Images/Evcars.png" alt="EV Cars">
+        <div class="caption"><i class="fas fa-car"></i> EV Stations & Technician Management</div>
       </a>
       <a href="http://localhost/school_r/" class="mini-card">
         <img src="Images/school.png" alt="School">
@@ -123,7 +120,6 @@
     </div>
   </section>
 
-  <!-- Milestones -->
   <section id="milestones" class="section fade-up">
     <h2 class="section-title"><i class="fas fa-trophy"></i> Professional Milestones</h2>
     <div class="milestones-grid">
@@ -134,7 +130,6 @@
     </div>
   </section>
 
-  <!-- Contact -->
   <section id="contact" class="section fade-up">
     <h2 class="section-title"><i class="fas fa-envelope-open-text"></i> Let's Connect</h2>
     <div class="contact-grid">
@@ -147,11 +142,15 @@
       </div>
       <div class="contact-form">
         <form id="contactForm">
+          <input type="hidden" name="access_key" value="6d53cee1-1fad-42fb-ab7e-d3510c6182f9">
+          <input type="hidden" name="subject" value="New Portfolio Message from Eyob Tsegaye">
+          <input type="checkbox" name="botcheck" id="botcheck" style="display: none;">
+
           <div id="formFeedback" style="margin-bottom: 12px;"></div>
-          <input type="text" id="name" placeholder="Full name" required>
-          <input type="email" id="email" placeholder="Email address" required>
-          <textarea rows="4" id="message" placeholder="Tell me about your project..."></textarea>
-          <button type="submit" class="btn-primary" style="background: var(--accent);"><i class="fas fa-paper-plane"></i> Send Message</button>
+          <input type="text" id="name" name="name" placeholder="Full name" required>
+          <input type="email" id="email" name="email" placeholder="Email address" required>
+          <textarea rows="4" id="message" name="message" placeholder="Tell me about your project..." required></textarea>
+          <button type="submit" id="submitBtn" class="btn-primary" style="background: var(--accent);"><i class="fas fa-paper-plane"></i> Send Message</button>
         </form>
       </div>
     </div>
@@ -226,25 +225,52 @@
   }, { threshold: 0.4 });
   document.querySelectorAll('.tool-card').forEach(card => progressObserver.observe(card));
 
-  // Contact form frontend simulation
+  // Contact form API functional handler
   const form = document.getElementById('contactForm');
   const feedback = document.getElementById('formFeedback');
-  form?.addEventListener('submit', (e) => {
+  const submitBtn = document.getElementById('submitBtn');
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const msg = document.getElementById('message').value.trim();
+    
     if (!name || !email || !msg) {
       feedback.innerHTML = '<div class="form-message" style="background: rgba(239,68,68,0.1); border-left-color:#ef4444;">⚠️ All fields are required.</div>';
       return;
     }
-    if (!email.includes('@') || !email.includes('.')) {
-      feedback.innerHTML = '<div class="form-message" style="background: rgba(239,68,68,0.1);">📧 Please enter a valid email.</div>';
-      return;
+    
+    // Switch UI into a loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Message...';
+    feedback.innerHTML = '';
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        feedback.innerHTML = '<div class="form-message"><i class="fas fa-check-circle"></i> ✨ Thanks! I’ll get back to you within 24 hours.</div>';
+        form.reset();
+      } else {
+        feedback.innerHTML = `<div class="form-message" style="background: rgba(239,68,68,0.1); border-left-color:#ef4444;">❌ Error: ${data.message}</div>`;
+      }
+    } catch (error) {
+      feedback.innerHTML = '<div class="form-message" style="background: rgba(239,68,68,0.1); border-left-color:#ef4444;">❌ Network error. Please verify your connection.</div>';
+    } finally {
+      // Re-enable interactive elements
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+      setTimeout(() => feedback.innerHTML = '', 5000);
     }
-    feedback.innerHTML = '<div class="form-message"><i class="fas fa-check-circle"></i> ✨ Thanks! I’ll get back to you within 24 hours.</div>';
-    form.reset();
-    setTimeout(() => feedback.innerHTML = '', 4000);
   });
 
   // initial progress if already visible
